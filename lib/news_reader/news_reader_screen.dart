@@ -34,88 +34,98 @@ class _NewsReaderState extends State<NewsReader> {
     return Scaffold(
       //Appbar
       appBar: AppBar(
-          backgroundColor: Colors.yellow,
-          title: Text(
-            'Newsreader',
-            style: textStyle(25, Colors.black, FontWeight.w700),
-          ),
-          actions: [
-            StreamBuilder<Object>(
-                stream: selectControllerBloc.countryStream,
-                initialData: selectControllerBloc.defaultCountry,
-                builder: (context, snapshot) {
-                  return DropdownButton(
-                      value: snapshot.data,
-                      items: countryCodes
-                          .map((code) => DropdownMenuItem(
-                              value: code,
-                              child: Text(
-                                code,
-                                style: textStyle(
-                                    20,
-                                    snapshot.data == code
-                                        ? Colors.black
-                                        : Colors.grey,
-                                    FontWeight.w600),
-                              )))
-                          .toList(),
-                      onChanged: ((dynamic code) {
-                        selectControllerBloc.selectCountry(code);
-                        countryLabel = code;
-                        getNewsBloc.getNews(code, categoryLabel);
-                      }));
-                })
-          ]),
+        backgroundColor: Colors.yellow,
+        title: Text(
+          'Newsreader',
+          style: textStyle(25, Colors.black, FontWeight.w700),
+        ),
+        actions: [
+          StreamBuilder<Object>(
+            stream: selectControllerBloc.countryStream,
+            initialData: selectControllerBloc.defaultCountry,
+            builder: (context, snapshot) {
+              return DropdownButton(
+                value: snapshot.data,
+                items: countryCodes
+                    .map(
+                      (code) => DropdownMenuItem(
+                        value: code,
+                        child: Text(
+                          code,
+                          style: textStyle(
+                              20,
+                              snapshot.data == code
+                                  ? Colors.black
+                                  : Colors.grey,
+                              FontWeight.w600),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: ((dynamic code) {
+                  selectControllerBloc.selectCountry(code);
+                  countryLabel = code;
+                  getNewsBloc.getNews(code, categoryLabel);
+                }),
+              );
+            },
+          )
+        ],
+      ),
 
       //Body
-      body: CustomScrollView(slivers: [
-        //Space
-        const SliverToBoxAdapter(
-          child: SizedBox(
-            height: 20,
+      body: CustomScrollView(
+        slivers: [
+          //Space
+          const SliverToBoxAdapter(
+            child: SizedBox(
+              height: 20,
+            ),
           ),
-        ),
 
-        //Menu containing different categories
-        SliverToBoxAdapter(
-          child: StreamBuilder<Object>(
+          //Menu containing different categories
+          SliverToBoxAdapter(
+            child: StreamBuilder<Object>(
               stream: selectControllerBloc.categoryStream,
               initialData: selectControllerBloc.defaultCategory,
               builder: (context, snapshot) {
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                      children: categories.map((category) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: InkWell(
-                        onTap: () {
-                          selectControllerBloc.selectCategory(category);
-                          categoryLabel = category;
-                          getNewsBloc.getNews(countryLabel, category);
-                        },
-                        child: Text(category,
-                            style: textStyle(
-                                20,
-                                snapshot.data == category
-                                    ? Colors.black
-                                    : Colors.grey,
-                                FontWeight.w600)),
-                      ),
-                    );
-                  }).toList()),
+                      children: categories.map(
+                    (category) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 15),
+                        child: InkWell(
+                          onTap: () {
+                            selectControllerBloc.selectCategory(category);
+                            categoryLabel = category;
+                            getNewsBloc.getNews(countryLabel, category);
+                          },
+                          child: Text(category,
+                              style: textStyle(
+                                  20,
+                                  snapshot.data == category
+                                      ? Colors.black
+                                      : Colors.grey,
+                                  FontWeight.w600)),
+                        ),
+                      );
+                    },
+                  ).toList()),
                 );
-              }),
-        ),
-
-        //Space
-        const SliverToBoxAdapter(
-          child: SizedBox(
-            height: 20,
+              },
+            ),
           ),
-        ),
 
-        StreamBuilder<NewsResponse>(
+          //Space
+          const SliverToBoxAdapter(
+            child: SizedBox(
+              height: 20,
+            ),
+          ),
+
+          StreamBuilder<NewsResponse>(
             stream: getNewsBloc.subject.stream,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -125,22 +135,25 @@ class _NewsReaderState extends State<NewsReader> {
 
               List<NewsModal>? newsList = snapshot.data!.news;
               return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  NewsModal currentNews = newsList![index];
-                  return NewsHeadline(
-                    author: currentNews.author,
-                    title: currentNews.title,
-                    description: currentNews.description,
-                    img: currentNews.img,
-                    date: currentNews.date,
-                    url: currentNews.url,
-                  );
-                },
-                childCount: newsList!.length,
-              ));
-            }),
-      ]),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    NewsModal currentNews = newsList![index];
+                    return NewsHeadline(
+                      author: currentNews.author,
+                      title: currentNews.title,
+                      description: currentNews.description,
+                      img: currentNews.img,
+                      date: currentNews.date,
+                      url: currentNews.url,
+                    );
+                  },
+                  childCount: newsList!.length,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
