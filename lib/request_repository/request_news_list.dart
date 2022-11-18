@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 class NewsRepository {
   final apiKey = newsApiKey;
+
   Future<NewsResponse> getNews(String country, String category) async {
     String url =
         'https://newsapi.org/v2/top-headlines?country=$country&category=$category&apiKey=$apiKey';
